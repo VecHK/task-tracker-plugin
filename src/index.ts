@@ -11,8 +11,19 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { startSync } from './api'
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
+		return new Response('vec task plugin')
 	},
-} satisfies ExportedHandler<Env>;
+
+	async scheduled(event, env, ctx) {
+		console.log('scheduled')
+    ctx.waitUntil(
+			startSync({
+				...env
+			})
+		);
+  }
+} satisfies ExportedHandler<Env>
