@@ -94,43 +94,28 @@ async function refreshSub(database_id) {
         date: mention_title_node.mention.date
         // date: mention_title_node.mention.date
       }
+
+			const text_nodes = page.properties.Name.title.filter(title_node => {
+				return title_node.type === 'text'
+			})
+			const title_text = text_nodes.map(text_node => text_node.plain_text).join('').trim()
+
+			await notion.pages.update({
+				page_id: page.id,
+				properties: {
+					Name: {
+						title: [
+							{
+								text: {
+									content: title_text
+								}
+							}
+						]
+					},
+					...properties,
+				}
+			})
     }
-
-    const text_nodes = page.properties.Name.title.filter(title_node => {
-      return title_node.type === 'text'
-    })
-    const title_text = text_nodes.map(text_node => text_node.plain_text).join('').trim()
-
-    // console.log({
-    //   Name: {
-    //     title: [
-    //       {
-    //         text: {
-    //           content: page.properties._Name.formula.string
-    //         }
-    //       }
-    //     ]
-    //   },
-    //   ...properties,
-    // })
-
-    // console.log('page.properties._Name.formula.string', page.properties._Name)
-
-    await notion.pages.update({
-      page_id: page.id,
-      properties: {
-        Name: {
-          title: [
-            {
-              text: {
-                content: title_text
-              }
-            }
-          ]
-        },
-        ...properties,
-      }
-    })
   }
 
   // console.log(`${res.results.length} refreshed. ${(new Date()).toISOString()}`)
