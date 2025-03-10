@@ -60,10 +60,10 @@ async function refreshSub(database_id) {
     database_id,
     filter: {
       and: [
-        {
-          property: "Need Sync",
-          checkbox: { equals: true }
-        },
+				{
+					property: "Done Date",
+					date: { is_empty: true }
+				},
         {
           property: "Parent task",
           relation: { is_not_empty: true }
@@ -71,6 +71,8 @@ async function refreshSub(database_id) {
       ]
     },
   })
+
+	console.log('will update sub count:', res.results)
 
   // return console.log(JSON.stringify(res))
 
