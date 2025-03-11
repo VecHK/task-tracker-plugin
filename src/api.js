@@ -112,6 +112,9 @@ async function refreshSub(database_id) {
 							}
 						]
 					},
+					Status: {
+						status: { name: 'Done' }
+					},
 					...properties,
 				}
 			})
