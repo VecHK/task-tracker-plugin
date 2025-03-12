@@ -18,6 +18,9 @@ export async function startSync({
 	console.log('start refreshSub')
   await refreshSub(TRACKER_DATABASE_ID)
 
+	console.log('start refreshDoneDate')
+	await refreshDoneDate(TRACKER_DATABASE_ID)
+
 	console.log('start refreshStatus')
 	await refreshStatus(TRACKER_DATABASE_ID)
 
@@ -122,6 +125,34 @@ async function refreshSub(database_id) {
   }
 
   // console.log(`${res.results.length} refreshed. ${(new Date()).toISOString()}`)
+}
+
+async function refreshDoneDate(database_id) {
+	const res = await notion.databases.query({
+    database_id,
+    filter: {
+      and: [
+        {
+          property: "Need Sync Done Date",
+          checkbox: { equals: true }
+        }
+      ]
+    },
+  })
+
+	for (const page of res.results) {
+		// console.log('page', page)
+		const date = page.properties['R_精神世界_DoneDate'].rollup.array[0].date
+		await notion.pages.update({
+			page_id: page.id,
+			properties: {
+				"Done Date": { date },
+				Status: {
+					status: { name: "Done" }
+				},
+			}
+		})
+	}
 }
 
 async function refreshStatus(database_id) {
