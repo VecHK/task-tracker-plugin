@@ -18,6 +18,9 @@ export async function startSync({
 	console.log('start refreshSub')
   await refreshSub(TRACKER_DATABASE_ID)
 
+	console.log('start refreshStatus')
+	await refreshStatus(TRACKER_DATABASE_ID)
+
 	console.log('synced')
 }
 
@@ -112,9 +115,6 @@ async function refreshSub(database_id) {
 							}
 						]
 					},
-					Status: {
-						status: { name: 'Done' }
-					},
 					...properties,
 				}
 			})
@@ -122,4 +122,35 @@ async function refreshSub(database_id) {
   }
 
   // console.log(`${res.results.length} refreshed. ${(new Date()).toISOString()}`)
+}
+
+async function refreshStatus(database_id) {
+	const res = await notion.databases.query({
+		database_id,
+		filter: {
+			and: [
+				{
+					property: "is_parent",
+          checkbox: { equals: false }
+				},
+				{
+          property: "Need Sync Status",
+          checkbox: { equals: true }
+        },
+			]
+		},
+	})
+
+	for (const page of res.results) {
+		const parent_status = page.properties.R_parent_status.rollup.array[0].status
+		// console.log(parent_status)
+		await notion.pages.update({
+			page_id: page.id,
+			properties: {
+				Status: {
+					status: parent_status
+				},
+			}
+		})
+	}
 }
